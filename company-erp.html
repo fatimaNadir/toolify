@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toolify Enterprise - Multi-Role Company ERP</title>
+    <title>Toolify Enterprise - Multi-Company ERP System</title>
     <style>
         :root {
             --primary: #4f46e5;
@@ -46,6 +46,8 @@
             align-items: center;
             margin-bottom: 25px;
             border: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .logo-area h1 {
@@ -56,6 +58,25 @@
         .logo-area p {
             color: var(--text-muted);
             font-size: 0.9rem;
+        }
+
+        .company-setup-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8fafc;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .company-setup-box input {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-weight: bold;
+            color: var(--primary);
+            width: 160px;
         }
 
         .role-selector {
@@ -138,6 +159,16 @@
             background: var(--primary-dark);
         }
 
+        .btn-small {
+            background: #0ea5e9;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
         /* Table Styling */
         .table-responsive {
             overflow-x: auto;
@@ -182,24 +213,43 @@
             display: inline-block;
             margin-right: 5px;
         }
+
+        .nav-back {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .nav-back:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- Header -->
+        <a href="index.html" class="nav-back">&larr; Back to Toolify Home</a>
+
+        <!-- Header with Multi-Company Config -->
         <header>
             <div class="logo-area">
-                <h1>🏢 Toolify Enterprise ERP</h1>
-                <p>Complete Officer & Workforce Tracking System</p>
+                <h1>🏢 <span id="displayCompanyName">Toolify Enterprise</span> ERP</h1>
+                <p>Multi-Company Isolated Workforce & Officer Tracking</p>
             </div>
+            
+            <div class="company-setup-box">
+                <label for="companyInput" style="margin:0; font-size:0.85rem;">Company:</label>
+                <input type="text" id="companyInput" value="Default Company" placeholder="Enter Company Name">
+                <button class="btn-small" onclick="switchCompany()">Load</button>
+            </div>
+
             <div class="role-selector">
-                <label for="activeRole">Switch View:</label>
+                <label for="activeRole">View:</label>
                 <select id="activeRole" onchange="filterRoleView()">
-                    <option value="ALL">CEO / Master View (All Data)</option>
-                    <option value="Plant Manager">Plant Manager View</option>
-                    <option value="Accountant">Accountant View</option>
-                    <option value="HR Officer">HR Officer View</option>
+                    <option value="ALL">CEO Master View</option>
+                    <option value="Plant Manager">Plant Manager</option>
+                    <option value="Accountant">Accountant</option>
+                    <option value="HR Officer">HR Officer</option>
                 </select>
             </div>
         </header>
@@ -237,7 +287,7 @@
 
                     <div class="form-group">
                         <label>Current Task / Responsibility:</label>
-                        <textarea id="staffTask" rows="2" placeholder="e.g., Monitoring morning shift machinery outputs"></textarea>
+                        <textarea id="staffTask" rows="2" placeholder="e.g., Monitoring machinery outputs"></textarea>
                     </div>
 
                     <div class="form-group">
@@ -275,20 +325,50 @@
     </div>
 
     <script>
-        // Initial Database containing various company officers and workers
-        let enterpriseData = [
-            { name: "Ali Raza", role: "Plant Manager", dept: "Production & Plant", task: "Supervising automated assembly line", time: "08:00 AM" },
-            { name: "Bilal Ahmed", role: "Accountant", dept: "Finance & Accounts", task: "Auditing monthly ledger and vendor invoices", time: "09:00 AM" },
-            { name: "Sara Khan", role: "HR Officer", dept: "Human Resources", task: "Reviewing worker attendance reports", time: "08:45 AM" },
-            { name: "Usman Ali", role: "Floor Worker", dept: "Production & Plant", task: "Operating packaging unit", time: "08:15 AM" }
-        ];
+        let currentCompanyKey = "Default Company";
+        let enterpriseData = {};
+
+        // Load data from LocalStorage based on Company Name
+        function loadCompanyData() {
+            const savedCompany = localStorage.getItem('active_company_name') || "Default Company";
+            document.getElementById('companyInput').value = savedCompany;
+            document.getElementById('displayCompanyName').innerText = savedCompany;
+            currentCompanyKey = "erp_data_" + savedCompany.trim().toLowerCase().replace(/\s+/g, '_');
+
+            const storedData = localStorage.getItem(currentCompanyKey);
+            if (storedData) {
+                enterpriseData = JSON.parse(storedData);
+            } else {
+                // Default dummy data if company has no records yet
+                enterpriseData = [
+                    { name: "Ali Raza", role: "Plant Manager", dept: "Production & Plant", task: "Supervising automated assembly line", time: "08:00 AM" },
+                    { name: "Bilal Ahmed", role: "Accountant", dept: "Finance & Accounts", task: "Auditing monthly ledger and invoices", time: "09:00 AM" }
+                ];
+                saveCompanyData();
+            }
+            filterRoleView();
+        }
+
+        function saveCompanyData() {
+            localStorage.setItem(currentCompanyKey, JSON.stringify(enterpriseData));
+        }
+
+        function switchCompany() {
+            const companyName = document.getElementById('companyInput').value.trim();
+            if(!companyName) {
+                alert("Please enter a valid company name!");
+                return;
+            }
+            localStorage.setItem('active_company_name', companyName);
+            loadCompanyData();
+        }
 
         function renderTable(dataToDisplay) {
             const tbody = document.getElementById('companyTableBody');
             tbody.innerHTML = "";
 
             if(dataToDisplay.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No records found for this view.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No records found for this company view.</td></tr>`;
                 return;
             }
 
@@ -328,6 +408,7 @@
             }
 
             enterpriseData.push({ name, role, dept, task, time });
+            saveCompanyData();
             
             // Reset form fields
             document.getElementById('staffName').value = "";
@@ -339,25 +420,29 @@
 
         function deleteRecord(index) {
             enterpriseData.splice(index, 1);
+            saveCompanyData();
             filterRoleView();
         }
 
         function filterRoleView() {
             const selectedRole = document.getElementById('activeRole').value;
             const titleElem = document.getElementById('tableTitle');
+            const companyName = document.getElementById('companyInput').value;
 
             if(selectedRole === "ALL") {
-                titleElem.innerText = "📊 Company Master Log (CEO View - All Departments)";
+                titleElem.innerText = `📊 ${companyName} - Master Log (All Departments)`;
                 renderTable(enterpriseData);
             } else {
-                titleElem.innerText = `📊 Department Log (${selectedRole} View)`;
+                titleElem.innerText = `📊 ${companyName} - Department Log (${selectedRole} View)`;
                 const filtered = enterpriseData.filter(item => item.role === selectedRole);
                 renderTable(filtered);
             }
         }
 
-        // Initial render on load
-        renderTable(enterpriseData);
+        // Load data on page load
+        window.onload = function() {
+            loadCompanyData();
+        };
     </script>
 </body>
 </html>
