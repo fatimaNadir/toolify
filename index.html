@@ -290,6 +290,7 @@
         <div class="logo">Toolify</div>
         <nav>
             <a href="#about">About</a>
+            <a href="company-erp.html" style="color: var(--primary); font-weight: bold;">Company ERP</a>
             <a href="#tool">Live Tool</a>
             <a href="#features">Features</a>
             <a href="#pricing" class="btn" style="padding: 0.5rem 1rem; color: white;">Get Pro</a>
@@ -349,8 +350,7 @@
                 <li>Priority Updates</li>
                 <li>Customer Support via WhatsApp</li>
             </ul>
-            <!-- Direct Checkout button jo customer ko aapke WhatsApp par notification bhejega -->
-            <a href="https://wa.me/923XXXXXXXXX?text=Hi!%20Maine%20Toolify%20Pro%20License%20kharidne%20ke%20liye%20payment%20kar%20di%20hai.%20Kindly%20mujhe%20access%20de%20dein." class="btn" style="width: 100%;" target="_blank">Buy & Confirm via WhatsApp</a>
+            <a href="https://wa.me/923242546651?text=Hi!%20Maine%20Toolify%20Pro%20License%20kharidne%20ke%20liye%20payment%20kar%20di%20hai.%20Kindly%20mujhe%20access%20de%20dein." class="btn" style="width: 100%;" target="_blank">Buy & Confirm via WhatsApp</a>
         </div>
     </section>
 
@@ -395,9 +395,9 @@
             const reversed = input.split('').reverse().join('');
 
             output.innerHTML = `<strong>Processed Successfully!</strong><br>` +
-                               `- Characters: ${charCount}<br>` +
-                               `- Words: ${wordCount}<br>` +
-                               `- Reversed: ${reversed}`;
+                                `- Characters: ${charCount}<br>` +
+                                `- Words: ${wordCount}<br>` +
+                                `- Reversed: ${reversed}`;
         }
 
         // WhatsApp Chatbot Toggle
@@ -408,7 +408,6 @@
 
         // Send Custom Query directly to WhatsApp
         function sendWaQuery(question) {
-            // NOTE: Replace 923XXXXXXXXX with your actual WhatsApp phone number including country code
             const phoneNumber = "923242546651"; 
             const encodedMessage = encodeURIComponent(question);
             window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
